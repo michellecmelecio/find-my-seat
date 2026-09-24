@@ -157,73 +157,89 @@ const guests = [
 ];
 
 function findSeat() {
+  const input = document
+    .getElementById("guestName")
+    .value
+    .trim()
+    .toLowerCase();
 
-    const input = document
-        .getElementById("guestName")
-        .value
-        .trim()
-        .toLowerCase();
+  const result = document.getElementById("result");
 
-    const result = document.getElementById("result");
+  if (!input) {
+    result.innerHTML =
+      '<div class="error">Please enter your name.</div>';
+    return;
+  }
 
-    if (!input) {
+  result.innerHTML =
+    '<div class="loading">Finding your table...</div>';
+
+  const callbackName =
+    "seatFinderCallback_" + Date.now();
+
+  window[callbackName] = function(data) {
+    try {
+      if (!data || !data.results || data.results.length === 0) {
         result.innerHTML =
-            '<div class="error">Please enter your name.</div>';
+          '<div class="error">We could not find your name. Please try your full name.</div>';
         return;
-    }
+      }
 
-    const matches = guests.filter(guest =>
-        guest.name.toLowerCase().includes(input)
-    );
-
-    if (matches.length === 0) {
-
-        result.innerHTML =
-            '<div class="error">We could not find your name. Please try your full name.</div>';
-
-        return;
-    }
-
-    if (matches.length === 1) {
+      if (data.results.length === 1) {
+        const guest = data.results[0];
 
         result.innerHTML = `
-            <div>
-                Welcome, <strong>${matches[0].name}</strong>!
-            </div>
+          <div>
+            Welcome, <strong>${guest.name}!</strong>
+          </div>
 
-            <div class="message">
-                You are seated at
-            </div>
+          <div style="margin-top: 18px;">
+            You are seated at
+          </div>
 
-            <div class="table-number">
-                TABLE ${matches[0].table}
-            </div>
+          <div class="table-number">
+            ${guest.table}
+          </div>
 
-            <div class="message">
-                We're so happy you're here!<br>
-                Enjoy the celebration. ❤️
-            </div>
+          <div style="margin-top: 18px;">
+            We're so happy you're here!<br>
+            Enjoy the celebration. ❤️
+          </div>
         `;
 
-    } else {
+        return;
+      }
 
-        let html = `
-            <div>Please select your name:</div>
-            <br>
-        `;
+      result.innerHTML = `
+        <div>
+          We found multiple guests matching your name.
+        </div>
+        <div style="margin-top: 12px;">
+          Please enter your full name.
+        </div>
+      `;
 
-        matches.forEach(guest => {
-            html += `
-                <button onclick="showTable('${guest.name}', '${guest.table}')">
-                    ${guest.name}
-                </button>
-            `;
-        });
+    } finally {
+      delete window[callbackName];
 
-        result.innerHTML = html;
+      const script = document.getElementById(callbackName);
+      if (script) script.remove();
     }
-}
+  };
 
+  const script = document.createElement("script");
+
+  script.id = callbackName;
+
+  script.src =
+    "https://script.google.com/macros/s/AKfycbw_HrnwHNYJrtQAOIHY0zhGeqQeVcLGwFQjqNWn3dRf5OkF8NpSJzlUcIbDPrBn9p9T/exec" +
+    "?name=" +
+    encodeURIComponent(input) +
+    "&callback=" +
+    callbackName;
+
+  document.body.appendChild(script);
+}
 function showTable(name, table) {
 
     const result = document.getElementById("result");
