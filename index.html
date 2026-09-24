@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Find My Seat | Patrick & Michelle</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Georgia, "Times New Roman", serif;
+        background: linear-gradient(135deg, #fffdf9, #f4f2ef);
+        color: #333;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+
+    .card {
+        width: 100%;
+        max-width: 500px;
+        background: white;
+        border-radius: 24px;
+        padding: 40px 25px;
+        text-align: center;
+        box-shadow: 0 10px 35px rgba(0,0,0,0.10);
+        border: 1px solid #d8c9ad;
+    }
+
+    .monogram {
+        font-size: 42px;
+        color: #b49a6c;
+        margin-bottom: 10px;
+        letter-spacing: 3px;
+    }
+
+    h1 {
+        margin: 5px 0;
+        font-size: 30px;
+        font-weight: normal;
+        color: #333;
+    }
+
+    .subtitle {
+        color: #777;
+        font-size: 17px;
+        margin-bottom: 30px;
+    }
+
+    .instruction {
+        font-size: 19px;
+        margin-bottom: 12px;
+    }
+
+    input {
+        width: 100%;
+        padding: 17px;
+        border-radius: 12px;
+        border: 1px solid #cfc4b0;
+        font-size: 18px;
+        text-align: center;
+        outline: none;
+    }
+
+    input:focus {
+        border-color: #b49a6c;
+    }
+
+    button {
+        width: 100%;
+        margin-top: 15px;
+        padding: 17px;
+        border: none;
+        border-radius: 12px;
+        background: #b49a6c;
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
+        font-family: Georgia, "Times New Roman", serif;
+    }
+
+    button:hover {
+        opacity: 0.9;
+    }
+
+    #result {
+        margin-top: 25px;
+        font-size: 18px;
+    }
+
+    .table-number {
+        font-size: 42px;
+        color: #b49a6c;
+        font-weight: bold;
+        margin: 12px 0;
+    }
+
+    .message {
+        margin-top: 20px;
+        color: #777;
+        font-size: 15px;
+    }
+
+    .error {
+        color: #a55;
+        margin-top: 20px;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+    <div class="monogram">P & M</div>
+
+    <h1>Patrick & Michelle</h1>
+
+    <div class="subtitle">
+        September 29, 2026
+    </div>
+
+    <div class="instruction">
+        Welcome! Find your table below.
+    </div>
+
+    <p>Please enter your name:</p>
+
+    <input
+        type="text"
+        id="guestName"
+        placeholder="Enter your name"
+        onkeydown="if(event.key === 'Enter') findSeat()"
+    >
+
+    <button onclick="findSeat()">
+        Find My Table
+    </button>
+
+    <div id="result"></div>
+
+</div>
+
+<script>
+
+const guests = [
+    { name: "Maria Santos", table: "8" },
+    { name: "Juan Dela Cruz", table: "3" },
+    { name: "Patrick Cruz", table: "VIP" }
+];
+
+function findSeat() {
+
+    const input = document
+        .getElementById("guestName")
+        .value
+        .trim()
+        .toLowerCase();
+
+    const result = document.getElementById("result");
+
+    if (!input) {
+        result.innerHTML =
+            '<div class="error">Please enter your name.</div>';
+        return;
+    }
+
+    const matches = guests.filter(guest =>
+        guest.name.toLowerCase().includes(input)
+    );
+
+    if (matches.length === 0) {
+
+        result.innerHTML =
+            '<div class="error">We could not find your name. Please try your full name.</div>';
+
+        return;
+    }
+
+    if (matches.length === 1) {
+
+        result.innerHTML = `
+            <div>
+                Welcome, <strong>${matches[0].name}</strong>!
+            </div>
+
+            <div class="message">
+                You are seated at
+            </div>
+
+            <div class="table-number">
+                TABLE ${matches[0].table}
+            </div>
+
+            <div class="message">
+                We're so happy you're here!<br>
+                Enjoy the celebration. ❤️
+            </div>
+        `;
+
+    } else {
+
+        let html = `
+            <div>Please select your name:</div>
+            <br>
+        `;
+
+        matches.forEach(guest => {
+            html += `
+                <button onclick="showTable('${guest.name}', '${guest.table}')">
+                    ${guest.name}
+                </button>
+            `;
+        });
+
+        result.innerHTML = html;
+    }
+}
+
+function showTable(name, table) {
+
+    const result = document.getElementById("result");
+
+    result.innerHTML = `
+        <div>
+            Welcome, <strong>${name}</strong>!
+        </div>
+
+        <div class="message">
+            You are seated at
+        </div>
+
+        <div class="table-number">
+            TABLE ${table}
+        </div>
+
+        <div class="message">
+            We're so happy you're here!<br>
+            Enjoy the celebration. ❤️
+        </div>
+    `;
+}
+
+</script>
+
+</body>
+</html>
